@@ -18,6 +18,9 @@ rag_backend/chromadb/
 # Sqlite db
 rag_backend/app.db
 
+# Document folder
+docs
+
 # Logs
 logs
 *.log
