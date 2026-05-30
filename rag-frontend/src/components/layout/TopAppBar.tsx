@@ -4,56 +4,49 @@ import MaterialIcon from "../icons/MaterialIcon";
 interface TopAppBarProps {
   onMenuClick?: () => void;
   onLibraryClick?: () => void;
+  currentChatTitle?: string | null;
 }
 
-const navLinks = [
-  { label: "Home", to: "/" },
-  { label: "Chat", to: "/chat" },
-];
-
-export default function TopAppBar({ onMenuClick, onLibraryClick }: TopAppBarProps) {
+export default function TopAppBar({
+  onMenuClick,
+  onLibraryClick,
+  currentChatTitle,
+}: TopAppBarProps) {
   const location = useLocation();
+  const isHome = location.pathname === "/";
 
   return (
     <header className="flex justify-between items-center px-lg h-16 fixed top-0 left-0 right-0 z-40 md:left-[280px] border-b border-outline-variant bg-surface/80 backdrop-blur-md">
-      {/* Mobile: hamburger + brand */}
-      <div className="flex items-center gap-md md:hidden">
-        <button onClick={onMenuClick} className="cursor-pointer">
+      {/* Left section: menu button (mobile only) + logo/title */}
+      <div className="flex items-center gap-md">
+        <button
+          onClick={onMenuClick}
+          className="md:hidden cursor-pointer flex items-center justify-center p-xs hover:bg-surface-container rounded-full transition-colors"
+          aria-label="Open navigation menu"
+        >
           <MaterialIcon icon="menu" className="text-on-surface" />
         </button>
-        <span className="text-headline-md font-bold tracking-tight text-primary">
-          Nexus RAG
-        </span>
-      </div>
 
-      {/* Desktop: centered tab navigation */}
-      <nav className="hidden md:flex gap-xl mx-auto">
-        {navLinks.map((link) => {
-          const isActive = location.pathname === link.to;
-          return (
-            <Link
-              key={link.label}
-              to={link.to}
-              className={`
-                text-body-sm pb-1 transition-all duration-300
-                ${
-                  isActive
-                    ? "text-primary border-b-2 border-primary font-medium"
-                    : "text-on-surface-variant hover:text-primary"
-                }
-              `}
-            >
-              {link.label}
-            </Link>
-          );
-        })}
-        <button
-          onClick={onLibraryClick}
-          className="text-body-sm pb-1 transition-all duration-300 text-on-surface-variant hover:text-primary cursor-pointer"
-        >
-          Library
-        </button>
-      </nav>
+        {isHome ? (
+          // Logo of the app
+          <Link to="/" className="flex items-center gap-sm select-none hover:opacity-90 transition-opacity">
+            <div className="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center overflow-hidden shrink-0">
+              <MaterialIcon icon="auto_awesome" filled className="text-on-primary-container" size={18} />
+            </div>
+            <span className="text-headline-md font-bold tracking-tight text-primary">
+              Nexus RAG
+            </span>
+          </Link>
+        ) : (
+          // Current Chat Name
+          <div className="flex items-center gap-sm max-w-[180px] sm:max-w-[320px] md:max-w-[400px] lg:max-w-[500px]">
+            <MaterialIcon icon="chat_bubble_outline" size={20} className="text-primary shrink-0" />
+            <span className="text-body-lg font-semibold text-on-surface truncate">
+              {currentChatTitle || "New Chat"}
+            </span>
+          </div>
+        )}
+      </div>
 
       {/* Right side actions */}
       <div className="flex items-center gap-md ml-auto md:ml-0">

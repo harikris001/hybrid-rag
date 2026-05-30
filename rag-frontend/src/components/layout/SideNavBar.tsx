@@ -93,7 +93,11 @@ export default function SideNavBar({
         `}
       >
         {/* Brand */}
-        <div className="flex items-center gap-md mb-xl px-sm">
+        <Link
+          to="/"
+          onClick={onClose}
+          className="flex items-center gap-md mb-xl px-sm cursor-pointer hover:opacity-90 transition-opacity"
+        >
           <div className="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden shrink-0">
             <MaterialIcon icon="auto_awesome" filled className="text-on-primary-container" size={22} />
           </div>
@@ -103,7 +107,7 @@ export default function SideNavBar({
               AI-Powered Intelligence
             </p>
           </div>
-        </div>
+        </Link>
 
         {/* Main Navigation */}
         <nav className="flex flex-col gap-sm">

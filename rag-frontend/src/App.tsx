@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { BrowserRouter, Routes, Route, useNavigate, useParams } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useNavigate, useParams, useLocation } from "react-router-dom";
 import SideNavBar from "./components/layout/SideNavBar";
 import TopAppBar from "./components/layout/TopAppBar";
 import HomePage from "./pages/HomePage";
@@ -91,6 +91,7 @@ function AppLayout() {
   const [libraryModalOpen, setLibraryModalOpen] = useState(false);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   // ── Conversations hook ────────────────────────────────────
   const {
@@ -101,6 +102,15 @@ function AppLayout() {
     deleteAnyConversation,
     updateConversationTitle,
   } = useConversations();
+
+  // Determine the current chat title if we're on a chat page
+  const isChatRoute = location.pathname.startsWith("/chat");
+  const chatMatch = location.pathname.match(/^\/chat\/([^/]+)/);
+  const currentChatId = chatMatch ? chatMatch[1] : activeConversationId;
+  const activeConversation = conversations.find((c) => c.id === currentChatId);
+  const currentChatTitle = isChatRoute
+    ? (activeConversation ? activeConversation.title : "New Chat")
+    : null;
 
   // ── Documents hook ────────────────────────────────────────
   const {
@@ -153,6 +163,7 @@ function AppLayout() {
         <TopAppBar
           onMenuClick={() => setSideNavOpen(true)}
           onLibraryClick={() => setLibraryModalOpen(true)}
+          currentChatTitle={currentChatTitle}
         />
 
         {/* Page Content */}
