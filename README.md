@@ -4,6 +4,9 @@ An enterprise-grade, agent-driven Retrieval-Augmented Generation (RAG) applicati
 
 ---
 
+<img width="1469" height="838" alt="Screenshot 2026-05-30 at 8 52 52 PM" src="https://github.com/user-attachments/assets/f8ae675f-588e-4224-bfa1-6e5c51b5dc73" />
+
+
 ## 🏗️ System Architecture & Data Flow
 
 The architecture is divided into two primary flows: **Document Ingestion** and **Chat Querying**.
