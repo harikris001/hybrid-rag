@@ -9,6 +9,7 @@ dependencies = [
     "chromadb>=1.5.9",
     "docling>=2.92.0",
     "dotenv>=0.9.9",
+    "duckduckgo-search>=8.1.1",
     "fastapi[standard]>=0.136.1",
     "google-genai>=1.75.0",
     "greenlet>=3.5.0",

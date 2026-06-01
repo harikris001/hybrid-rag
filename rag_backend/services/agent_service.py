@@ -2,9 +2,9 @@ from dataclasses import dataclass, field
 from typing import AsyncIterator
 from pydantic_ai import Agent, RunContext
 import chromadb
+from duckduckgo_search import DDGS
 from services.embedding_service import EmbeddingService, get_embedding_service
 from dotenv import load_dotenv
-
 load_dotenv()
 
 
@@ -54,6 +54,13 @@ def search_documents(ctx: RunContext[RagDependencies], query: str) -> str:
         formatted_output.append(f"Source: {meta['source']}\nChunk: {meta['chunk_number']}\nText: {doc}\n")
     return "\n\n------\n\n".join(formatted_output)
 
+@rag_agent.tool
+def web_search(ctx: RunContext[RagDependencies], query:str) -> str:
+    """Search the web for the latest and updated information about a query that might need an updated information"""
+    with DDGS() as ddgs:
+        results = ddgs.text(query, max_results=5)
+        return "\n\n------\n\n".join([f"Title: {r['title']}\nSnippet: {r['snippet']}\nLink: {r['href']}" for r in results])
+
 
 class AgentService:
     def __init__(self, embedding_service: EmbeddingService):
@@ -75,7 +82,7 @@ class AgentService:
         )
         
         return {
-            "answer": result.data,
+            "answer": result.output,
             "messages": result.all_messages()
         }
 

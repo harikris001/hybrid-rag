@@ -1,3 +1,4 @@
+from openai.types.evals import RunCancelResponse
 from docling.document_converter import DocumentConverter, PdfFormatOption
 from docling.datamodel.base_models import InputFormat
 from docling.datamodel.pipeline_options import PdfPipelineOptions, TableFormerMode
@@ -5,6 +6,7 @@ from docling.chunking import HybridChunker
 from pydantic_ai import Agent, RunContext
 from google import genai
 from google.genai import types
+from duckduckgo_search import DDGS
 from dotenv import load_dotenv
 import chromadb
 
@@ -31,7 +33,7 @@ client = genai.Client()
 chunks = chunker.chunk(dl_doc=docling_doc, max_tokens=512)
 
 dbclient = chromadb.PersistentClient(path = "./chromadb")
-collection = dbclient.get_or_create_collection(name = "attention-is-all-you-need")
+collection = dbclient.get_or_create_collection(name = "knowledge_base")
 
 if collection.count() == 0:
     print("Database, empty. Processing PDF......")
@@ -56,10 +58,8 @@ else:
 
 
 agent = Agent(
-    model="google:gemini-3.1-flash-lite",
+    model="google:gemini-2.5-flash",
     system_prompt="You are a helpful assistant that provide concise answers about questions that have been asked about. Never answer questions that are not related to the context provided to you. Answer only for what is asked and required.",
-    #capabilities = [WebSearch()]
-
 )
 
 @agent.tool
@@ -81,6 +81,14 @@ def search_rag_docs(ctx: RunContext,  query: str) -> str:
     found_text = "\n\n------\n\n".join(results['documents'][0])
    
     return found_text
+
+@agent.tool
+def web_search(ctx: RunContext, query:str) -> str:
+    """Search the web for the latest and updated information about a query that might need an updated information"""
+    with DDGS() as ddgs:
+        results = ddgs.text(query, max_results=5)
+        return "\n\n------\n\n".join([f"Title: {r['title']}\nSnippet: {r['snippet']}\nLink: {r['href']}" for r in results])
+
 
 chat_history = []
 
