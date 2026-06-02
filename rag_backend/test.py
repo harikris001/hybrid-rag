@@ -6,7 +6,8 @@ from docling.chunking import HybridChunker
 from pydantic_ai import Agent, RunContext
 from google import genai
 from google.genai import types
-from duckduckgo_search import DDGS
+from ddgs import DDGS
+from sympy import sympify, simplify
 from dotenv import load_dotenv
 import chromadb
 
@@ -87,8 +88,14 @@ def web_search(ctx: RunContext, query:str) -> str:
     """Search the web for the latest and updated information about a query that might need an updated information"""
     with DDGS() as ddgs:
         results = ddgs.text(query, max_results=5)
-        return "\n\n------\n\n".join([f"Title: {r['title']}\nSnippet: {r['snippet']}\nLink: {r['href']}" for r in results])
+        return "\n\n------\n\n".join([f"Title: {r['title']}\nSnippet: {r['body']}\nLink: {r['href']}" for r in results])
 
+@agent.tool
+def solve_math(ctx: RunContext, expression) -> str:
+    """Solves mathematical expressions and returns the simplified result"""
+    expr = sympify(expression)
+    result = simplify(expr)
+    return str(result)
 
 chat_history = []
 

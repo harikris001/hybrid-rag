@@ -71,13 +71,17 @@ class ChatService:
         full_response = ""
         message_metadata = None
         try:
-            async for chunk in self.agent_service.stream_query(prompt, formatted_history):
-                if isinstance(chunk, str):
-                    full_response += chunk
-                    yield f"data: {json.dumps({'content': chunk})}\n\n"
-                elif isinstance(chunk, dict):
-                    message_metadata = chunk
-                    metadata_json = json.dumps(chunk)
+            async for event in self.agent_service.stream_query(prompt, formatted_history):
+                event_type = event.get("event")
+                if event_type == "text":
+                    text_content = event["content"]
+                    full_response += text_content
+                    yield f"data: {json.dumps({'content': text_content})}\n\n"
+                elif event_type in ("tool_start", "tool_complete"):
+                    yield f"event: {event_type}\ndata: {json.dumps(event)}\n\n"
+                elif event_type == "metadata":
+                    message_metadata = event
+                    metadata_json = json.dumps(event)
                     yield f"event: metadata\ndata: {metadata_json}\n\n"
             
             ai_reply = Message(
