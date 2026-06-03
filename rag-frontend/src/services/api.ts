@@ -81,7 +81,8 @@ export function streamMessage(
     onChunk: (text: string) => void,
     onDone?: () => void,
     onError?: (error: Error) => void,
-    onMetadata?: (metadata: MessageMetadata) => void
+    onMetadata?: (metadata: MessageMetadata) => void,
+    onToolEvent?: (event: { event: string; tool: string; query?: string }) => void
 ): AbortController {
     const controller = new AbortController();
 
@@ -145,8 +146,12 @@ export function streamMessage(
                             return;
                         }
                         
+                        console.log("[SSE API] Event received:", eventType, parsed);
+
                         if (eventType === "metadata") {
                             onMetadata?.(parsed);
+                        } else if (eventType === "tool_start" || eventType === "tool_complete") {
+                            onToolEvent?.({ event: eventType, tool: parsed.tool, query: parsed.query });
                         } else if (parsed.content) {
                             onChunk(parsed.content);
                         }

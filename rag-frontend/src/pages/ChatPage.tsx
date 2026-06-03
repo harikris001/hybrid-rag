@@ -14,6 +14,7 @@ export default function ChatPage({
   error,
   onSend,
   onStopStreaming,
+  activeTool,
 }: ChatPageProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -78,7 +79,7 @@ export default function ChatPage({
           {/* Streaming / thinking indicator */}
           {isStreaming && (
             <div className="mt-md mb-xl">
-              <ThinkingIndicator />
+              <ThinkingIndicator activeTool={activeTool} />
             </div>
           )}
 

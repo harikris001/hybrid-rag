@@ -43,6 +43,7 @@ function ChatRoute({
     isLoading,
     isStreaming,
     error,
+    activeTool,
     handleStreamSend,
     stopStreaming,
   } = useChat(activeConversationId);
@@ -82,6 +83,7 @@ function ChatRoute({
       error={error}
       onSend={handleSend}
       onStopStreaming={stopStreaming}
+      activeTool={activeTool}
     />
   );
 }

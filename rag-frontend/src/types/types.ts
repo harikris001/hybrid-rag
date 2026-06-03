@@ -48,6 +48,7 @@ export interface ChatPageProps {
     error: string | null;
     onSend: (prompt: string) => void;
     onStopStreaming: () => void;
+    activeTool: { tool: string; query?: string } | null;
 }
 
 export interface NavItemProps {

@@ -43,11 +43,14 @@ async def search_documents(ctx: RunContext[RagDependencies], query: str) -> str:
     
     print(f"Agent is searching ChromaDB for: '{query}'")
     
-    query_vector = ctx.deps.embedding_service.embed_query(query)
+    # Run the blocking embedding call in a background thread to prevent blocking the event loop
+    query_vector = await asyncio.to_thread(ctx.deps.embedding_service.embed_query, query)
     
     collection = ctx.deps.db_client.get_or_create_collection("knowledge_base")
     
-    results = collection.query(
+    # Run the blocking collection query call in a background thread
+    results = await asyncio.to_thread(
+        collection.query,
         query_embeddings=[query_vector],
         n_results=5,
         include=['documents', 'metadatas']
@@ -76,7 +79,8 @@ async def web_search(ctx: RunContext[RagDependencies], query:str) -> str:
         "query": query
     })
     with DDGS() as ddgs:
-        results = ddgs.text(query, max_results=5)
+        # Run the blocking duckduckgo search in a background thread to prevent blocking the event loop
+        results = await asyncio.to_thread(ddgs.text, query, max_results=5)
         output = "\n\n------\n\n".join([f"Title: {r['title']}\nSnippet: {r['body']}\nLink: {r['href']}" for r in results])
     await ctx.deps.event_queue.put({
         "event": "tool_complete",

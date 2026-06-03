@@ -13,6 +13,7 @@ export function useChat(conversationId: string | null) {
     const [isLoading, setIsLoading] = useState(false);
     const [isStreaming, setIsStreaming] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [activeTool, setActiveTool] = useState<{ tool: string; query?: string } | null>(null);
 
     // Keep a ref to the active stream's AbortController so we can
     // cancel it on unmount or when the user switches conversations.
@@ -23,6 +24,7 @@ export function useChat(conversationId: string | null) {
         // Reset state for the new conversation
         setMessages([]);
         setError(null);
+        setActiveTool(null);
 
         if (!conversationId) return;
 
@@ -50,6 +52,7 @@ export function useChat(conversationId: string | null) {
             streamControllerRef.current?.abort();
             if (typingIntervalRef.current) window.clearInterval(typingIntervalRef.current);
             if (drainIntervalRef.current) window.clearInterval(drainIntervalRef.current);
+            setActiveTool(null);
         };
     }, [conversationId]);
 
@@ -110,6 +113,7 @@ export function useChat(conversationId: string | null) {
 
             setError(null);
             setIsStreaming(true);
+            setActiveTool(null);
 
             // Optimistically add the user's message
             const userMsg = createUserMessage(prompt);
@@ -163,6 +167,7 @@ export function useChat(conversationId: string | null) {
                             if (drainIntervalRef.current) window.clearInterval(drainIntervalRef.current);
                             if (typingIntervalRef.current) window.clearInterval(typingIntervalRef.current);
                             setIsStreaming(false);
+                            setActiveTool(null);
                             streamControllerRef.current = null;
                         }
                     }, 50);
@@ -172,6 +177,7 @@ export function useChat(conversationId: string | null) {
                     if (typingIntervalRef.current) window.clearInterval(typingIntervalRef.current);
                     setError(err.message);
                     setIsStreaming(false);
+                    setActiveTool(null);
                     streamControllerRef.current = null;
                 },
                 // onMetadata
@@ -181,6 +187,17 @@ export function useChat(conversationId: string | null) {
                             msg.id === assistantId ? { ...msg, metadata } : msg
                         )
                     );
+                },
+                // onToolEvent
+                (event) => {
+                    console.log("[useChat] onToolEvent called:", event);
+                    if (event.event === "tool_start") {
+                        console.log("[useChat] Setting activeTool:", event.tool);
+                        setActiveTool({ tool: event.tool, query: event.query });
+                    } else if (event.event === "tool_complete") {
+                        console.log("[useChat] Clearing activeTool");
+                        setActiveTool(null);
+                    }
                 }
             );
 
@@ -196,12 +213,14 @@ export function useChat(conversationId: string | null) {
         if (typingIntervalRef.current) window.clearInterval(typingIntervalRef.current);
         if (drainIntervalRef.current) window.clearInterval(drainIntervalRef.current);
         setIsStreaming(false);
+        setActiveTool(null);
     }, []);
 
     // ── Clear messages (e.g. for a "New Chat" action) ───────
     const clearMessages = useCallback(() => {
         setMessages([]);
         setError(null);
+        setActiveTool(null);
     }, []);
 
     return {
@@ -209,6 +228,7 @@ export function useChat(conversationId: string | null) {
         isLoading,
         isStreaming,
         error,
+        activeTool,
         handleSend,
         handleStreamSend,
         stopStreaming,
