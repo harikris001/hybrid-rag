@@ -1,5 +1,5 @@
-from click import echo
 import os
+import chromadb
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
@@ -21,3 +21,13 @@ async def get_db():
         yield db
     finally:
         await db.close()
+
+# ChromaDB Client Singleton
+_chroma_client = None
+
+def get_chroma_client() -> chromadb.PersistentClient:
+    global _chroma_client
+    if _chroma_client is None:
+        _chroma_client = chromadb.PersistentClient(path="./chromadb")
+        print("Connected To ChromaDB")
+    return _chroma_client
