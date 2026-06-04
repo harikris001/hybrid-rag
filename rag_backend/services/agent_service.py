@@ -7,6 +7,7 @@ from ddgs import DDGS
 from sympy import sympify, simplify
 from services.embedding_service import EmbeddingService, get_embedding_service
 from dotenv import load_dotenv
+from db import get_chroma_client
 load_dotenv()
 
 
@@ -59,11 +60,15 @@ async def search_documents(ctx: RunContext[RagDependencies], query: str) -> str:
     if not results['documents'] or not results['documents'][0]:
         return "No relevant documents found in the database."
         
-    ctx.deps.retrieved_metadata.extend(results['metadatas'][0])
-
     formatted_output = []
-    for doc, meta in zip(results['documents'][0], results['metadatas'][0]):
+    for chunk_id, doc, meta in zip(results['ids'][0], results['documents'][0], results['metadatas'][0]):
         formatted_output.append(f"Source: {meta['source']}\nChunk: {meta['chunk_number']}\nText: {doc}\n")
+        ctx.deps.retrieved_metadata.append({
+            "id": chunk_id,
+            "source": meta.get('source'),
+            "chunk_number": meta.get('chunk_number'),
+            "text": doc,
+        })
     await ctx.deps.event_queue.put({
         "event": "tool_complete", 
         "tool": "search_documents"
@@ -108,7 +113,7 @@ async def solve_math(ctx: RunContext[RagDependencies], expression) -> str:
 class AgentService:
     def __init__(self, embedding_service: EmbeddingService):
         self.embedding_service = embedding_service
-        self.db_client = chromadb.PersistentClient(path="./chromadb")
+        self.db_client = get_chroma_client()
 
     async def query(self, user_prompt: str, message_history: list = None):
         """Method to run the agent with the user's prompt."""

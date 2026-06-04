@@ -1,13 +1,16 @@
+from fastapi import HTTPException
 from fastapi import APIRouter, UploadFile, File, BackgroundTasks
 import os
 import shutil
 
 from services.ingestion_service import get_ingestion_service
+from db import get_chroma_client
 
 router = APIRouter()
 
 DOCS_FOLDER = "./docs"
 
+db_client = get_chroma_client()
 
 # Function to list all the documents that is uploaded into to ./docs folder.
 @router.get("/")
@@ -48,6 +51,24 @@ async def upload_file(background_tasks: BackgroundTasks, file: UploadFile = File
         "message": "File uploaded. Ingestion into vector database started in background.",
     }
 
+@router.get("/chunks/{chunk_id}")
+def get_chunk_by_id(chunk_id: str):
+    """
+    Fetch a single chunk's text and metadata by its ChromaDB ID.
+    """
+    collection = db_client.get_or_create_collection(name="knowledge_base")
+    try:
+        result = collection.get(ids=[chunk_id], include=["documents", "metadatas"])
+        if not result["ids"]:
+            raise HTTPException(status_code=404, detail="Chunk not found")
+        
+        return {
+            "id": result["ids"][0],
+            "document": result["documents"][0],
+            "metadata": result["metadatas"][0]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 async def run_ingestion(file_path: str, filename: str):
     """Background task that ingests the document into the vector DB."""

@@ -1,6 +1,9 @@
 export interface DocumentSource {
+    id?: string;
     source: string;
     chunk_number?: number;
+    text?: string;
+    document?: string;
     [key: string]: unknown; // Allow for other ChromaDB metadata fields
 }
 

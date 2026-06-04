@@ -4,11 +4,11 @@ from docling.datamodel.pipeline_options import PdfPipelineOptions, TableFormerMo
 from docling.chunking import HybridChunker
 from docling.document_converter import DocumentConverter, PdfFormatOption
 
-import chromadb
 import os
 import uuid
 
 from services.embedding_service import EmbeddingService, get_embedding_service
+from db import get_chroma_client
 
 
 COLLECTION_NAME = "knowledge_base"
@@ -30,7 +30,7 @@ class IngestionService:
 
         self.chunker = HybridChunker(max_tokens=512)
 
-        self.db_client = chromadb.PersistentClient(path="./chromadb")
+        self.db_client = get_chroma_client()
 
     async def ingest_document(self, file_path: str) -> dict:
         """
