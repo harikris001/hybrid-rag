@@ -15,6 +15,7 @@ load_dotenv()
 class RagDependencies:
     db_client: chromadb.PersistentClient
     embedding_service: EmbeddingService
+    user_profile_context: str = ""
     retrieved_metadata: list = field(default_factory=list)
     event_queue: asyncio.Queue = field(default_factory=asyncio.Queue)
 
@@ -31,6 +32,15 @@ rag_agent = Agent(
         "If you cant find the answer you can let the user know that you dont know about it from the documents and need to search web."
     ),
 )
+
+
+@rag_agent.system_prompt
+async def add_user_profile(ctx: RunContext[RagDependencies]) -> str:
+    """Dynamically inject the user's profile into the system prompt when available."""
+    if ctx.deps.user_profile_context:
+        return f"\n\nUser Profile (use this to personalize your responses):\n{ctx.deps.user_profile_context}"
+    return ""
+
 
 @rag_agent.tool
 async def search_documents(ctx: RunContext[RagDependencies], query: str) -> str:
@@ -115,12 +125,13 @@ class AgentService:
         self.embedding_service = embedding_service
         self.db_client = get_chroma_client()
 
-    async def query(self, user_prompt: str, message_history: list = None):
+    async def query(self, user_prompt: str, message_history: list = None, user_profile_context: str = ""):
         """Method to run the agent with the user's prompt."""
         
         deps = RagDependencies(
             db_client=self.db_client,
             embedding_service=self.embedding_service,
+            user_profile_context=user_profile_context,
         )
         
         result = await rag_agent.run(
@@ -134,12 +145,13 @@ class AgentService:
             "messages": result.all_messages()
         }
 
-    async def stream_query(self, user_prompt: str, message_history: list = None) -> AsyncIterator[dict]:
+    async def stream_query(self, user_prompt: str, message_history: list = None, user_profile_context: str = "") -> AsyncIterator[dict]:
         """Stream the agent's response, tool calls, and metadata as a unified event stream."""
         event_queue = asyncio.Queue()
         deps = RagDependencies(
             db_client=self.db_client,
             embedding_service=self.embedding_service,
+            user_profile_context=user_profile_context,
             event_queue=event_queue
         )
         
