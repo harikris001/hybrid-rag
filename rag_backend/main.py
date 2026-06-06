@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 from routes import documents
 from routes import chat
 from routes import conversation
+from routes import profile
 
 from db import engine
 from models.base import Base
@@ -20,6 +21,8 @@ app = FastAPI(lifespan=lifespan)
 app.include_router(documents.router, prefix="/doc")
 app.include_router(chat.router, prefix="/chat")
 app.include_router(conversation.router, prefix="/conversations")
+app.include_router(profile.router, prefix="/profile")
+
 
 @app.get("/")
 async def root():

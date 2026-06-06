@@ -5,6 +5,7 @@ from datetime import datetime
 
 from schemas.user_profile_update import UserProfileUpdate
 from models.user_profile import UserProfile
+from services.memory_events import memory_event_queue
 
 
 memory_agent = Agent(
@@ -72,6 +73,15 @@ class MemoryAgentService:
                 self.db.add(new_profile)
 
             await self.db.commit()
+
+            # Push notification to the SSE stream
+            await memory_event_queue.put({
+                "interests": merged_interests,
+                "preferences": merged_preferences,
+                "new_interests": update.interests,
+                "new_preferences": update.preferences,
+            })
+
             print(f"[MemoryAgent] Profile updated for user '{user_id}': interests={merged_interests}, preferences={merged_preferences}")
 
         except Exception as e:
