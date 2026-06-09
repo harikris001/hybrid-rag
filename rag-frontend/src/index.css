@@ -281,3 +281,19 @@ body {
 .ai-glow {
   box-shadow: 0 0 40px rgba(194, 193, 255, 0.05);
 }
+
+/* ── Toast Slide-In Animation ── */
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-toast-in {
+  animation: toastIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}

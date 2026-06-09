@@ -28,19 +28,36 @@ export function useChat(conversationId: string | null) {
 
         if (!conversationId) return;
 
+        // Use an AbortController so the fetch is cancelled if the
+        // conversation changes or a stream starts before it completes.
+        const fetchController = new AbortController();
         setIsLoading(true);
 
         fetchConversation(conversationId)
             .then((data) => {
+                // Don't overwrite messages if streaming is already underway
+                // (happens when a message is sent immediately after a new
+                // conversation is created, before this fetch returns).
+                if (fetchController.signal.aborted) return;
+                if (streamControllerRef.current) return;
                 setMessages(data.messages);
             })
             .catch((err) => {
+                if (fetchController.signal.aborted) return;
                 setError(err.message);
             })
             .finally(() => {
-                setIsLoading(false);
+                if (!fetchController.signal.aborted) {
+                    setIsLoading(false);
+                }
             });
+
+        return () => {
+            fetchController.abort();
+            setIsLoading(false);
+        };
     }, [conversationId]);
+
 
     // Refs for typing effect intervals so we can clean them up
     const typingIntervalRef = useRef<number | null>(null);

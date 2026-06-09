@@ -4,12 +4,13 @@ import MaterialIcon from "../icons/MaterialIcon";
 interface TopAppBarProps {
   onMenuClick?: () => void;
   onLibraryClick?: () => void;
+  onMemoriesClick?: () => void;
   currentChatTitle?: string | null;
 }
 
 export default function TopAppBar({
   onMenuClick,
-  onLibraryClick,
+  onMemoriesClick,
   currentChatTitle,
 }: TopAppBarProps) {
   const location = useLocation();
@@ -50,12 +51,12 @@ export default function TopAppBar({
 
       {/* Right side actions */}
       <div className="flex items-center gap-md ml-auto md:ml-0">
-        <button 
-          onClick={onLibraryClick}
+        <button
+          onClick={onMemoriesClick}
           className="hidden lg:flex px-md py-sm bg-primary-container text-on-primary-container hover:bg-primary hover:text-on-primary transition-colors rounded-lg text-body-sm font-medium items-center gap-sm cursor-pointer"
         >
-          <MaterialIcon icon="database" size={16} />
-          Connect Data
+          <MaterialIcon icon="psychology" size={16} />
+          Memories
         </button>
         <div className="flex items-center gap-sm text-on-surface-variant">
           <button className="hover:text-primary transition-colors flex items-center justify-center w-8 h-8 rounded-full hover:bg-surface-container cursor-pointer">

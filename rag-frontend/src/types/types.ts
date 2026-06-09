@@ -62,3 +62,22 @@ export interface NavItemProps {
     textSize?: string;
     onClick?: () => void;
 }
+
+export interface UserProfile {
+    interests: string[];
+    preferences: string[];
+    updated_at: string | null;
+}
+
+export interface MemoryUpdateEvent {
+    interests: string[];
+    preferences: string[];
+    new_interests: string[];
+    new_preferences: string[];
+}
+
+
+export interface MemoryToastProps {
+    event: MemoryUpdateEvent | null;
+    onDismiss: () => void;
+}

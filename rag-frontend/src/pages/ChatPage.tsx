@@ -64,20 +64,26 @@ export default function ChatPage({
           )}
 
           {/* Messages */}
-          {messages.map((msg) => (
-            <ChatMessage
-              key={msg.id}
-              role={msg.role === "user" ? "user" : "ai"}
-              metadata={msg.metadata}
-            >
-              <div className="text-body-md text-on-surface leading-relaxed whitespace-pre-wrap">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
-              </div>
-            </ChatMessage>
-          ))}
+          {messages
+            // Skip empty assistant placeholder bubbles – they are shown via ThinkingIndicator instead
+            .filter((msg) => msg.role === "user" || msg.content.length > 0)
+            .map((msg) => (
+              <ChatMessage
+                key={msg.id}
+                role={msg.role === "user" ? "user" : "ai"}
+                metadata={msg.metadata}
+              >
+                <div className="text-body-md text-on-surface leading-relaxed whitespace-pre-wrap">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+                </div>
+              </ChatMessage>
+            ))}
 
-          {/* Streaming / thinking indicator */}
-          {isStreaming && (
+          {/* Thinking indicator – shown while waiting for the first token of the current turn.
+               We check the last message specifically: handleStreamSend always appends an empty
+               assistant placeholder synchronously, so messages.at(-1) is empty iff we haven't
+               received a single token yet (works for turn 1, 2, 3 … alike). */}
+          {isStreaming && (messages.at(-1)?.content ?? "").length === 0 && (
             <div className="mt-md mb-xl">
               <ThinkingIndicator activeTool={activeTool} />
             </div>

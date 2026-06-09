@@ -153,8 +153,8 @@ export default function SideNavBar({
                   />
                   <span className="text-body-sm truncate flex-1">
                     {editingConversationId === conv.id ? (
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={editTitle}
                         onChange={(e) => setEditTitle(e.target.value)}
                         onKeyDown={(e) => {
@@ -176,12 +176,12 @@ export default function SideNavBar({
                     )}
                   </span>
                   <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button 
-                      onClick={(e) => { 
-                        e.stopPropagation(); 
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setEditingConversationId(conv.id);
                         setEditTitle(conv.title);
-                      }} 
+                      }}
                       className="hover:bg-black/5 rounded p-1"
                     >
                       <MaterialIcon icon="edit" className="text-outline" size={18} />
@@ -206,7 +206,7 @@ export default function SideNavBar({
         <div className="mt-auto flex flex-col gap-sm pt-lg border-t border-outline-variant">
           <button className="w-full py-sm px-md mb-md bg-transparent border border-outline-variant text-on-surface hover:bg-surface-container-highest transition-colors rounded flex items-center justify-center gap-sm cursor-pointer">
             <MaterialIcon icon="star" className="text-tertiary" />
-            <span className="text-body-sm font-medium">Star on Github</span>
+            <a href="https://github.com/harikris001/hybrid-rag" target="_blank" className="text-body-sm font-medium">Star on Github</a>
           </button>
           <NavItem icon="settings" label="Settings" textSize="text-label-mono" />
           <NavItem icon="person" label="Account" textSize="text-label-mono" />

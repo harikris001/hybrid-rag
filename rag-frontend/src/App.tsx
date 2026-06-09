@@ -8,6 +8,9 @@ import FileLibraryModal from "./components/library/FileLibraryModal";
 import { useConversations } from "./hooks/useConversations";
 import { useChat } from "./hooks/useChat";
 import { useDocuments } from "./hooks/useDocuments";
+import { useMemory } from "./hooks/useMemory";
+import MemoryToast from "./components/layout/MemoryToast";
+import MemoryModal from "./components/layout/MemoryModal";
 import type { Conversation } from "./types/types";
 
 /**
@@ -91,6 +94,7 @@ function ChatRoute({
 function AppLayout() {
   const [sideNavOpen, setSideNavOpen] = useState(false);
   const [libraryModalOpen, setLibraryModalOpen] = useState(false);
+  const [memoryModalOpen, setMemoryModalOpen] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -124,6 +128,16 @@ function AppLayout() {
     loadDocuments,
     upload,
   } = useDocuments();
+
+  // ── Memory hook ────────────────────────────────────────────
+  const {
+    profile: memoryProfile,
+    toast: memoryToast,
+    dismissToast: dismissMemoryToast,
+    deleteInterest,
+    deletePreference,
+    clearMemory,
+  } = useMemory();
 
   // Handlers
 
@@ -165,6 +179,7 @@ function AppLayout() {
         <TopAppBar
           onMenuClick={() => setSideNavOpen(true)}
           onLibraryClick={() => setLibraryModalOpen(true)}
+          onMemoriesClick={() => setMemoryModalOpen(true)}
           currentChatTitle={currentChatTitle}
         />
 
@@ -196,6 +211,19 @@ function AppLayout() {
         onUpload={upload}
         onLoadDocuments={loadDocuments}
       />
+
+      {/* Memory Modal */}
+      <MemoryModal
+        isOpen={memoryModalOpen}
+        onClose={() => setMemoryModalOpen(false)}
+        profile={memoryProfile}
+        onDeleteInterest={deleteInterest}
+        onDeletePreference={deletePreference}
+        onClearMemory={clearMemory}
+      />
+
+      {/* Memory Update Toast */}
+      <MemoryToast event={memoryToast} onDismiss={dismissMemoryToast} />
     </div>
   );
 }

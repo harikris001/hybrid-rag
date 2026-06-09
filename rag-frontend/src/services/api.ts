@@ -189,3 +189,29 @@ export async function uploadDocument(file: File): Promise<UploadResponse> {
     });
     return handleResponse<UploadResponse>(res);
 }
+
+// Profile / Memory endpoints (/profile)
+
+export async function fetchUserProfile(): Promise<{ interests: string[]; preferences: string[]; updated_at: string | null }> {
+    const res = await fetch(`${API_BASE}/profile/`);
+    return handleResponse(res);
+}
+
+export async function clearUserProfile(): Promise<void> {
+    const res = await fetch(`${API_BASE}/profile/`, { method: "DELETE" });
+    return handleResponse(res);
+}
+
+export async function deleteInterest(interest: string): Promise<void> {
+    const res = await fetch(`${API_BASE}/profile/interests/${encodeURIComponent(interest)}`, {
+        method: "DELETE",
+    });
+    return handleResponse(res);
+}
+
+export async function deletePreference(preference: string): Promise<void> {
+    const res = await fetch(`${API_BASE}/profile/preferences/${encodeURIComponent(preference)}`, {
+        method: "DELETE",
+    });
+    return handleResponse(res);
+}
