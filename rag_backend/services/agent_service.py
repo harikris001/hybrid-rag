@@ -7,7 +7,7 @@ from ddgs import DDGS
 from sympy import sympify, simplify
 from services.embedding_service import EmbeddingService, get_embedding_service
 from dotenv import load_dotenv
-from db import get_chroma_client
+from db import get_chroma_client, get_knowledge_base_collection
 load_dotenv()
 
 
@@ -21,7 +21,7 @@ class RagDependencies:
 
 
 rag_agent = Agent(
-    model="google:gemini-2.5-flash",
+    model="google:gemini-3.1-flash-lite",
     deps_type=RagDependencies,
     system_prompt=(
         "You are a helpful expert assistant. "
@@ -57,7 +57,7 @@ async def search_documents(ctx: RunContext[RagDependencies], query: str) -> str:
     # Run the blocking embedding call in a background thread to prevent blocking the event loop
     query_vector = await asyncio.to_thread(ctx.deps.embedding_service.embed_query, query)
     
-    collection = ctx.deps.db_client.get_or_create_collection("knowledge_base")
+    collection = get_knowledge_base_collection(ctx.deps.db_client)
     
     # Run the blocking collection query call in a background thread
     results = await asyncio.to_thread(

@@ -8,10 +8,7 @@ import os
 import uuid
 
 from services.embedding_service import EmbeddingService, get_embedding_service
-from db import get_chroma_client
-
-
-COLLECTION_NAME = "knowledge_base"
+from db import get_chroma_client, get_knowledge_base_collection
 
 
 class IngestionService:
@@ -38,7 +35,7 @@ class IngestionService:
         Uses UUID-based chunk IDs to avoid collisions across multiple uploads.
         """
         filename = os.path.basename(file_path)
-        collection = self.db_client.get_or_create_collection(name=COLLECTION_NAME)
+        collection = get_knowledge_base_collection(self.db_client)
 
         # Check if this file has already been ingested
         existing = collection.get(where={"source": filename})

@@ -4,7 +4,7 @@ import os
 import shutil
 
 from services.ingestion_service import get_ingestion_service
-from db import get_chroma_client
+from db import get_chroma_client, get_knowledge_base_collection
 
 router = APIRouter()
 
@@ -56,7 +56,7 @@ def get_chunk_by_id(chunk_id: str):
     """
     Fetch a single chunk's text and metadata by its ChromaDB ID.
     """
-    collection = db_client.get_or_create_collection(name="knowledge_base")
+    collection = get_knowledge_base_collection(db_client)
     try:
         result = collection.get(ids=[chunk_id], include=["documents", "metadatas"])
         if not result["ids"]:

@@ -34,7 +34,15 @@ client = genai.Client()
 chunks = chunker.chunk(dl_doc=docling_doc, max_tokens=512)
 
 dbclient = chromadb.PersistentClient(path = "./chromadb")
-collection = dbclient.get_or_create_collection(name = "knowledge_base")
+collection = dbclient.get_or_create_collection(
+    name="knowledge_base",
+    metadata={
+        "hnsw:space": "ip",
+        "hnsw:M": 32,
+        "hnsw:construction_ef": 200,
+        "hnsw:search_ef": 50,
+    }
+)
 
 if collection.count() == 0:
     print("Database, empty. Processing PDF......")

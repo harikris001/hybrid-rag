@@ -9,7 +9,7 @@ from services.memory_events import memory_event_queue
 
 
 memory_agent = Agent(
-    model="google:gemini-2.5-flash",
+    model="google:gemini-3.1-flash-lite",
     output_type=UserProfileUpdate,
     system_prompt=(
         "You are an expert profiling assistant. Analyze the conversation "
